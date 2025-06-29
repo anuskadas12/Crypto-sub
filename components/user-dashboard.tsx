@@ -1,18 +1,13 @@
 "use client"
 
+import { DialogFooter } from "@/components/ui/dialog"
+
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -35,6 +30,7 @@ import {
   Play,
   Mail,
 } from "lucide-react"
+import Image from "next/image"
 
 interface UserDashboardProps {
   userAddress: string
@@ -46,9 +42,10 @@ interface Subscription {
   price: string
   token: string
   nextBilling: string
-  status: "active" | "expired" | "cancelled"
+  status: "active" | "expired" | "cancelled" | "paused"
   nftTokenId: string
   creator: string
+  nftImage: string // Remove the optional ? mark
 }
 
 interface CreatedPlan {
@@ -96,6 +93,10 @@ export function UserDashboard({ userAddress = "0x1234...5678" }: UserDashboardPr
   const [analyticsDialogOpen, setAnalyticsDialogOpen] = useState(false)
   const [analyticsData, setAnalyticsData] = useState<any>(null)
 
+  const [changePaymentDialogOpen, setChangePaymentDialogOpen] = useState(false)
+  const [pauseSubscriptionDialogOpen, setPauseSubscriptionDialogOpen] = useState(false)
+  const [cancelSubscriptionDialogOpen, setCancelSubscriptionDialogOpen] = useState(false)
+
   // Form states
   const [editPlanForm, setEditPlanForm] = useState({
     name: "",
@@ -107,6 +108,12 @@ export function UserDashboard({ userAddress = "0x1234...5678" }: UserDashboardPr
   const [pricingForm, setPricingForm] = useState({
     price: "",
     token: "USDC",
+  })
+
+  // Add new form state for payment method
+  const [paymentForm, setPaymentForm] = useState({
+    walletAddress: "",
+    paymentToken: "USDC",
   })
 
   const [stats, setStats] = useState({
@@ -130,6 +137,7 @@ export function UserDashboard({ userAddress = "0x1234...5678" }: UserDashboardPr
         status: "active",
         nftTokenId: "1001",
         creator: "0x1234...5678",
+        nftImage: "/images/nft-pass-1.png",
       },
       {
         id: 2,
@@ -140,6 +148,7 @@ export function UserDashboard({ userAddress = "0x1234...5678" }: UserDashboardPr
         status: "active",
         nftTokenId: "1002",
         creator: "0x2345...6789",
+        nftImage: "/images/nft-pass-2.png",
       },
       {
         id: 3,
@@ -150,6 +159,7 @@ export function UserDashboard({ userAddress = "0x1234...5678" }: UserDashboardPr
         status: "expired",
         nftTokenId: "1003",
         creator: "0x3456...7890",
+        nftImage: "/images/nft-pass-3.png",
       },
     ]
 
@@ -451,6 +461,44 @@ export function UserDashboard({ userAddress = "0x1234...5678" }: UserDashboardPr
     URL.revokeObjectURL(url)
   }
 
+  const handleChangePayment = () => {
+    if (selectedSubscription) {
+      setPaymentForm({
+        walletAddress: "",
+        paymentToken: selectedSubscription.token,
+      })
+      setSubscriptions((prev) =>
+        prev.map((sub) => (sub.id === selectedSubscription.id ? { ...sub, token: paymentForm.paymentToken } : sub)),
+      )
+      setChangePaymentDialogOpen(false)
+      setSelectedSubscription(null)
+    }
+  }
+
+  const handlePauseSubscription = () => {
+    if (selectedSubscription) {
+      setSubscriptions((prev) =>
+        prev.map((sub) =>
+          sub.id === selectedSubscription.id ? { ...sub, status: "paused" as const, nextBilling: "Paused" } : sub,
+        ),
+      )
+      setPauseSubscriptionDialogOpen(false)
+      setSelectedSubscription(null)
+    }
+  }
+
+  const handleCancelSubscription = () => {
+    if (selectedSubscription) {
+      setSubscriptions((prev) =>
+        prev.map((sub) =>
+          sub.id === selectedSubscription.id ? { ...sub, status: "cancelled" as const, nextBilling: "Cancelled" } : sub,
+        ),
+      )
+      setCancelSubscriptionDialogOpen(false)
+      setSelectedSubscription(null)
+    }
+  }
+
   return (
     <div className="space-y-6 p-6">
       {/* Header */}
@@ -666,7 +714,7 @@ export function UserDashboard({ userAddress = "0x1234...5678" }: UserDashboardPr
               .map((subscription) => (
                 <Card
                   key={subscription.nftTokenId}
-                  className="border-2 border-purple-200 hover:border-purple-300 transition-colors"
+                  className="border-2 border-purple-200 hover:border-purple-300 transition-colors overflow-hidden"
                 >
                   <CardHeader>
                     <div className="flex justify-between items-start">
@@ -681,13 +729,18 @@ export function UserDashboard({ userAddress = "0x1234...5678" }: UserDashboardPr
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="aspect-square bg-gradient-to-br from-purple-400 via-purple-500 to-blue-500 rounded-lg mb-4 flex items-center justify-center relative overflow-hidden">
-                      <div className="absolute inset-0 bg-black/10"></div>
-                      <div className="relative z-10 text-center text-white">
-                        <Shield className="w-16 h-16 mx-auto mb-2 drop-shadow-lg" />
-                        <div className="text-xs font-bold tracking-wider">#{subscription.nftTokenId}</div>
-                      </div>
+                    <div className="aspect-square rounded-lg mb-4 relative overflow-hidden">
+                      <Image
+                        src={subscription.nftImage || "/placeholder.svg"}
+                        alt={`NFT Pass #${subscription.nftTokenId}`}
+                        fill
+                        className="object-cover rounded-lg"
+                        crossOrigin="anonymous"
+                      />
                       <div className="absolute top-2 right-2 w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                      <div className="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
+                        #{subscription.nftTokenId}
+                      </div>
                     </div>
                     <div className="space-y-3">
                       <div className="flex justify-between">
@@ -803,17 +856,35 @@ export function UserDashboard({ userAddress = "0x1234...5678" }: UserDashboardPr
             <div className="space-y-2">
               <h4 className="font-medium">Subscription Options</h4>
               <div className="space-y-2">
-                <Button variant="outline" className="w-full justify-start bg-transparent">
+                <Button
+                  variant="outline"
+                  className="w-full justify-start bg-transparent"
+                  onClick={() => {
+                    setManageDialogOpen(false)
+                    setChangePaymentDialogOpen(true)
+                  }}
+                >
                   <Settings className="w-4 h-4 mr-2" />
                   Change Payment Method
                 </Button>
-                <Button variant="outline" className="w-full justify-start bg-transparent">
+                <Button
+                  variant="outline"
+                  className="w-full justify-start bg-transparent"
+                  onClick={() => {
+                    setManageDialogOpen(false)
+                    setPauseSubscriptionDialogOpen(true)
+                  }}
+                >
                   <AlertCircle className="w-4 h-4 mr-2" />
                   Pause Subscription
                 </Button>
                 <Button
                   variant="outline"
                   className="w-full justify-start text-red-600 hover:text-red-700 bg-transparent"
+                  onClick={() => {
+                    setManageDialogOpen(false)
+                    setCancelSubscriptionDialogOpen(true)
+                  }}
                 >
                   <X className="w-4 h-4 mr-2" />
                   Cancel Subscription
@@ -838,8 +909,17 @@ export function UserDashboard({ userAddress = "0x1234...5678" }: UserDashboardPr
           </DialogHeader>
           {selectedSubscription && (
             <div className="py-4">
-              <div className="aspect-square bg-gradient-to-br from-purple-400 to-blue-500 rounded-lg mb-4 flex items-center justify-center">
-                <Shield className="w-20 h-20 text-white" />
+              <div className="aspect-square rounded-lg mb-4 relative overflow-hidden">
+                <Image
+                  src={selectedSubscription.nftImage || "/placeholder.svg"}
+                  alt={`NFT Pass #${selectedSubscription.nftTokenId}`}
+                  fill
+                  className="object-cover rounded-lg"
+                  crossOrigin="anonymous"
+                />
+                <div className="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
+                  #{selectedSubscription.nftTokenId}
+                </div>
               </div>
               <div className="space-y-3">
                 <div className="flex justify-between">
@@ -1509,6 +1589,181 @@ export function UserDashboard({ userAddress = "0x1234...5678" }: UserDashboardPr
             <Button disabled={!selectedPlan} onClick={() => handleExportData(selectedPlan)}>
               <FileDown className="w-4 h-4 mr-2" />
               Export Data
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Change Payment Method Dialog */}
+      <Dialog open={changePaymentDialogOpen} onOpenChange={setChangePaymentDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Settings className="w-5 h-5 text-blue-500" />
+              Change Payment Method
+            </DialogTitle>
+            <DialogDescription>Update your payment method for "{selectedSubscription?.planName}"</DialogDescription>
+          </DialogHeader>
+          <div className="py-4 space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="wallet-address">Wallet Address</Label>
+              <Input
+                id="wallet-address"
+                value={paymentForm.walletAddress}
+                onChange={(e) => setPaymentForm((prev) => ({ ...prev, walletAddress: e.target.value }))}
+                placeholder="0x..."
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="payment-token">Payment Token</Label>
+              <Select
+                value={paymentForm.paymentToken}
+                onValueChange={(value) => setPaymentForm((prev) => ({ ...prev, paymentToken: value }))}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="USDC">USDC</SelectItem>
+                  <SelectItem value="DAI">DAI</SelectItem>
+                  <SelectItem value="USDT">USDT</SelectItem>
+                  <SelectItem value="ETH">ETH</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <div className="flex items-start space-x-2">
+                <AlertCircle className="w-4 h-4 text-blue-600 mt-0.5" />
+                <div className="text-sm text-blue-800">
+                  <p className="font-medium">Payment Method Update</p>
+                  <p>
+                    Changes will take effect on your next billing cycle. Make sure your new wallet has sufficient funds.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setChangePaymentDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleChangePayment} className="bg-blue-600 hover:bg-blue-700">
+              <Check className="w-4 h-4 mr-2" />
+              Update Payment Method
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Pause Subscription Dialog */}
+      <Dialog open={pauseSubscriptionDialogOpen} onOpenChange={setPauseSubscriptionDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertCircle className="w-5 h-5 text-orange-500" />
+              Pause Subscription
+            </DialogTitle>
+            <DialogDescription>
+              Are you sure you want to pause your subscription to "{selectedSubscription?.planName}"?
+            </DialogDescription>
+          </DialogHeader>
+          {selectedSubscription && (
+            <div className="py-4">
+              <div className="bg-gray-50 rounded-lg p-4 space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-600">Plan:</span>
+                  <span className="text-sm font-medium">{selectedSubscription.planName}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-600">Current Status:</span>
+                  <Badge className={getStatusColor(selectedSubscription.status)}>{selectedSubscription.status}</Badge>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-600">Next Billing:</span>
+                  <span className="text-sm font-medium">{selectedSubscription.nextBilling}</span>
+                </div>
+              </div>
+              <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mt-4">
+                <div className="flex items-start space-x-2">
+                  <AlertCircle className="w-4 h-4 text-orange-600 mt-0.5" />
+                  <div className="text-sm text-orange-800">
+                    <p className="font-medium">What happens when you pause?</p>
+                    <ul className="mt-1 space-y-1">
+                      <li>• Your subscription will be paused immediately</li>
+                      <li>• You'll retain access until your current billing period ends</li>
+                      <li>• No future charges will occur</li>
+                      <li>• You can resume anytime</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPauseSubscriptionDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handlePauseSubscription} className="bg-orange-600 hover:bg-orange-700">
+              <Pause className="w-4 h-4 mr-2" />
+              Pause Subscription
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Cancel Subscription Dialog */}
+      <Dialog open={cancelSubscriptionDialogOpen} onOpenChange={setCancelSubscriptionDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <X className="w-5 h-5 text-red-500" />
+              Cancel Subscription
+            </DialogTitle>
+            <DialogDescription>
+              Are you sure you want to cancel your subscription to "{selectedSubscription?.planName}"?
+            </DialogDescription>
+          </DialogHeader>
+          {selectedSubscription && (
+            <div className="py-4">
+              <div className="bg-gray-50 rounded-lg p-4 space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-600">Plan:</span>
+                  <span className="text-sm font-medium">{selectedSubscription.planName}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-600">Creator:</span>
+                  <span className="text-sm font-medium">{selectedSubscription.creator}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-600">Monthly Cost:</span>
+                  <span className="text-sm font-medium">
+                    ${selectedSubscription.price} {selectedSubscription.token}
+                  </span>
+                </div>
+              </div>
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3 mt-4">
+                <div className="flex items-start space-x-2">
+                  <AlertCircle className="w-4 h-4 text-red-600 mt-0.5" />
+                  <div className="text-sm text-red-800">
+                    <p className="font-medium">This action cannot be undone</p>
+                    <ul className="mt-1 space-y-1">
+                      <li>• Your subscription will be cancelled immediately</li>
+                      <li>• You'll lose access to premium content</li>
+                      <li>• Your NFT pass will be deactivated</li>
+                      <li>• No refunds for the current billing period</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCancelSubscriptionDialogOpen(false)}>
+              Keep Subscription
+            </Button>
+            <Button onClick={handleCancelSubscription} className="bg-red-600 hover:bg-red-700">
+              <X className="w-4 h-4 mr-2" />
+              Cancel Subscription
             </Button>
           </DialogFooter>
         </DialogContent>
