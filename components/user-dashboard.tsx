@@ -730,10 +730,10 @@ export function UserDashboard({ userAddress = "0x1234...5678" }: UserDashboardPr
                   </CardHeader>
                   <CardContent>
                     <div className="aspect-square rounded-lg mb-4 relative overflow-hidden">
-                      <Image
-                        src={subscription.nftImage || "/placeholder.svg"}
+                      
+                      <img
+                        src="https://imgs.search.brave.com/SkiMh5bBRh0B12YxSXNFJ2-qtdwm3lm9auFc2bYyPfc/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5pc3RvY2twaG90/by5jb20vaWQvMTM2/NDA3NDQyNi9waG90/by9ub24tZnVuZ2li/bGUtdG9rZW4tY29u/Y2VwdC5qcGc_Yj0x/JnM9NjEyeDYxMiZ3/PTAmaz0yMCZjPXpm/a0taM2xQZlVRMFJV/TktjX3ZJVFlFeWRa/aWoyNG02TFhXaS1q/STcxaVU9"
                         alt={`NFT Pass #${subscription.nftTokenId}`}
-                        fill
                         className="object-cover rounded-lg"
                         crossOrigin="anonymous"
                       />
@@ -910,10 +910,9 @@ export function UserDashboard({ userAddress = "0x1234...5678" }: UserDashboardPr
           {selectedSubscription && (
             <div className="py-4">
               <div className="aspect-square rounded-lg mb-4 relative overflow-hidden">
-                <Image
-                  src={selectedSubscription.nftImage || "/placeholder.svg"}
+                <img
+                  src="https://imgs.search.brave.com/jd72vWD_0iThWRfVMpfnhgyxC2_PGO2KEI4Bs-FRGVo/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9jZG4u/cHJvZC53ZWJzaXRl/LWZpbGVzLmNvbS82/MmRmYTU1OTY4YmY2/MzJkZDg2OTFjNTUv/NjJmM2I5NWY3ZDdj/ZDc2MWU0NWMxOTIw/XzYyZWE4MjY0NmFh/Zjc4NGU0YjhiMDQy/Nl9VbnRpdGxlZC0y/LndlYnA"
                   alt={`NFT Pass #${selectedSubscription.nftTokenId}`}
-                  fill
                   className="object-cover rounded-lg"
                   crossOrigin="anonymous"
                 />
