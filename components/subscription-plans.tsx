@@ -489,8 +489,8 @@ export function SubscriptionPlans({ userAddress }: SubscriptionPlansProps) {
     <div className="space-y-6">
       {/* Header */}
       <div className="text-center">
-        <h1 className="text-3xl font-bold text-gray-900 mb-4">Explore Subscription Plans</h1>
-        <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+        <h1 className="text-3xl font-bold text-blue-700 mb-4">Explore Subscription Plans</h1>
+        <p className="text-lg text-blue-700 max-w-2xl mx-auto">
           Discover premium content and services from Web3 creators. Subscribe with crypto and get exclusive NFT
           membership passes.
         </p>
@@ -525,8 +525,8 @@ export function SubscriptionPlans({ userAddress }: SubscriptionPlansProps) {
       {/* Featured Plans */}
       {selectedCategory === "all" && (
         <div className="space-y-4">
-          <h2 className="text-xl font-semibold text-gray-900 flex items-center">
-            <Star className="mr-2 h-5 w-5 text-yellow-500" />
+          <h2 className="text-xl font-semibold text-blue-700 flex items-center">
+            <Star className="mr-2 h-5 w-5 text-white-500" />
             Featured Plans
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -583,7 +583,7 @@ export function SubscriptionPlans({ userAddress }: SubscriptionPlansProps) {
 
       {/* All Plans */}
       <div className="space-y-4">
-        <h2 className="text-xl font-semibold text-gray-900">
+        <h2 className="text-xl font-semibold text-blue-700">
           {selectedCategory === "all" ? "All Plans" : `${selectedCategory} Plans`}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

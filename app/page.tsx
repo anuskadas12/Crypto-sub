@@ -26,6 +26,7 @@ export default function HomePage() {
   const [uploadedVideo, setUploadedVideo] = useState<File | null>(null)
   const [videoPreview, setVideoPreview] = useState<string>("")
   const [showVideoModal, setShowVideoModal] = useState(false)
+  const [isDarkMode, setIsDarkMode] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -124,23 +125,70 @@ export default function HomePage() {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
+    <div
+      className={`min-h-screen transition-all duration-1000 ${
+        isDarkMode ? "bg-black" : "bg-gradient-to-br from-purple-50 via-white to-blue-50"
+      }`}
+    >
+      {/* Animated background elements for dark mode */}
+      {isDarkMode && (
+        <div className="fixed inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-purple-900/20 rounded-full blur-3xl animate-pulse"></div>
+          <div
+            className="absolute top-3/4 right-1/4 w-96 h-96 bg-blue-900/20 rounded-full blur-3xl animate-pulse"
+            style={{ animationDelay: "1s" }}
+          ></div>
+          <div
+            className="absolute top-1/2 left-1/2 w-48 h-48 bg-indigo-900/20 rounded-full blur-3xl animate-pulse"
+            style={{ animationDelay: "2s" }}
+          ></div>
+
+          {/* Floating particles */}
+          <div className="absolute top-20 left-20 w-2 h-2 bg-purple-400/30 rounded-full animate-bounce"></div>
+          <div className="absolute top-40 right-32 w-1 h-1 bg-blue-400/40 rounded-full animate-ping"></div>
+          <div className="absolute bottom-32 left-1/3 w-1.5 h-1.5 bg-indigo-400/30 rounded-full animate-pulse"></div>
+          <div
+            className="absolute top-60 right-1/4 w-1 h-1 bg-purple-300/40 rounded-full animate-bounce"
+            style={{ animationDelay: "0.5s" }}
+          ></div>
+          <div
+            className="absolute bottom-40 right-20 w-2 h-2 bg-blue-300/30 rounded-full animate-ping"
+            style={{ animationDelay: "1.5s" }}
+          ></div>
+        </div>
+      )}
+
       {/* Hidden file input */}
       <input ref={fileInputRef} type="file" accept="video/*" onChange={handleFileChange} className="hidden" />
 
       {/* Video Preview Modal */}
       {showVideoModal && uploadedVideo && (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden">
-            <div className="flex items-center justify-between p-4 border-b">
+          <div
+            className={`rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden ${
+              isDarkMode ? "bg-gray-900 border border-gray-700" : "bg-white"
+            }`}
+          >
+            <div
+              className={`flex items-center justify-between p-4 border-b ${
+                isDarkMode ? "border-gray-700" : "border-gray-200"
+              }`}
+            >
               <div className="flex items-center space-x-3">
                 <Play className="h-5 w-5 text-purple-600" />
                 <div>
-                  <h3 className="font-semibold text-lg">Video Preview</h3>
-                  <p className="text-sm text-gray-600">{uploadedVideo.name}</p>
+                  <h3 className={`font-semibold text-lg ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                    Video Preview
+                  </h3>
+                  <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>{uploadedVideo.name}</p>
                 </div>
               </div>
-              <Button variant="ghost" size="sm" onClick={closeVideoModal} className="hover:bg-gray-100">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={closeVideoModal}
+                className={`${isDarkMode ? "hover:bg-gray-800 text-gray-400" : "hover:bg-gray-100"}`}
+              >
                 <X className="h-4 w-4" />
               </Button>
             </div>
@@ -148,9 +196,11 @@ export default function HomePage() {
               <video src={videoPreview} controls className="w-full max-h-[60vh] rounded-lg" preload="metadata">
                 Your browser does not support the video tag.
               </video>
-              <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-                <h4 className="font-medium mb-2">Demo: How this would work with CryptoSub</h4>
-                <ul className="text-sm text-gray-600 space-y-1">
+              <div className={`mt-4 p-4 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-gray-50"}`}>
+                <h4 className={`font-medium mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                  Demo: How this would work with CryptoSub
+                </h4>
+                <ul className={`text-sm space-y-1 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
                   <li>• Your video would be uploaded to IPFS for decentralized storage</li>
                   <li>• Subscribers with valid NFT passes can access premium content</li>
                   <li>• Smart contracts automatically handle access control</li>
@@ -176,6 +226,8 @@ export default function HomePage() {
         userAddress={userAddress}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
+        isDarkMode={isDarkMode}
+        setIsDarkMode={setIsDarkMode}
         onConnect={(address) => {
           setIsConnected(true)
           setUserAddress(address)
@@ -192,16 +244,31 @@ export default function HomePage() {
         <section className="relative py-32 px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto text-center">
             <div className="mb-8">
-              <Badge variant="secondary" className="mb-4 px-4 py-2 text-sm font-medium bg-purple-100 text-purple-800">
+              <Badge
+                variant="secondary"
+                className={`mb-4 px-4 py-2 text-sm font-medium transition-all duration-500 ${
+                  isDarkMode
+                    ? "bg-purple-900/50 text-purple-300 border border-purple-700/50"
+                    : "bg-purple-100 text-purple-800"
+                }`}
+              >
                 🚀 The Future of Subscriptions
               </Badge>
-              <h1 className="text-4xl sm:text-6xl font-bold text-gray-900 mb-6">
+              <h1
+                className={`text-4xl sm:text-6xl font-bold mb-6 transition-all duration-500 ${
+                  isDarkMode ? "text-white" : "text-gray-900"
+                }`}
+              >
                 <span className="block">Smart Contract</span>
                 <span className="block bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
                   Subscription Platform
                 </span>
               </h1>
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
+              <p
+                className={`text-xl max-w-3xl mx-auto mb-8 transition-all duration-500 ${
+                  isDarkMode ? "text-gray-300" : "text-gray-600"
+                }`}
+              >
                 Create crypto-powered subscriptions with automatic billing and NFT membership passes. Perfect for Web3
                 creators, SaaS tools, and exclusive communities.
               </p>
@@ -224,7 +291,11 @@ export default function HomePage() {
               <Button
                 variant="outline"
                 size="lg"
-                className="bg-white text-gray-700 hover:bg-gray-50"
+                className={`transition-all duration-500 ${
+                  isDarkMode
+                    ? "bg-gray-800 text-gray-200 hover:bg-gray-700 border-gray-600"
+                    : "bg-white text-gray-700 hover:bg-gray-50"
+                }`}
                 onClick={handleVideoUpload}
               >
                 <Upload className="mr-2 h-4 w-4" />
@@ -237,15 +308,21 @@ export default function HomePage() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-2xl mx-auto">
               <div className="text-center">
                 <div className="text-3xl font-bold text-purple-600 mb-2">$2.5M+</div>
-                <div className="text-gray-600">Total Volume</div>
+                <div className={`transition-all duration-500 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                  Total Volume
+                </div>
               </div>
               <div className="text-center">
                 <div className="text-3xl font-bold text-purple-600 mb-2">10K+</div>
-                <div className="text-gray-600">Active Subscribers</div>
+                <div className={`transition-all duration-500 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                  Active Subscribers
+                </div>
               </div>
               <div className="text-center">
                 <div className="text-3xl font-bold text-purple-600 mb-2">500+</div>
-                <div className="text-gray-600">Creators</div>
+                <div className={`transition-all duration-500 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                  Creators
+                </div>
               </div>
             </div>
           </div>
@@ -263,25 +340,52 @@ export default function HomePage() {
 
       {/* Features Section */}
       {!isConnected && (
-        <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
+        <section
+          className={`py-20 px-4 sm:px-6 lg:px-8 transition-all duration-500 ${
+            isDarkMode ? "bg-gray-900/50" : "bg-white"
+          }`}
+        >
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-16">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">Why Choose CryptoSub?</h2>
-              <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              <h2
+                className={`text-3xl font-bold mb-4 transition-all duration-500 ${
+                  isDarkMode ? "text-white" : "text-gray-900"
+                }`}
+              >
+                Why Choose CryptoSub?
+              </h2>
+              <p
+                className={`text-xl max-w-2xl mx-auto transition-all duration-500 ${
+                  isDarkMode ? "text-gray-300" : "text-gray-600"
+                }`}
+              >
                 Built for the Web3 era with smart contracts, NFTs, and seamless crypto payments
               </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
               {features.map((feature, index) => (
-                <Card key={index} className="text-center border-0 shadow-lg hover:shadow-xl transition-shadow">
+                <Card
+                  key={index}
+                  className={`text-center border-0 shadow-lg hover:shadow-xl transition-all duration-500 ${
+                    isDarkMode ? "bg-gray-800/50 hover:bg-gray-800/70 backdrop-blur-sm" : "bg-white"
+                  } ${isDarkMode ? "hover:scale-105 hover:shadow-purple-500/25" : ""}`}
+                >
                   <CardHeader>
                     <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg flex items-center justify-center mx-auto mb-4 text-white">
                       {feature.icon}
                     </div>
-                    <CardTitle className="text-lg">{feature.title}</CardTitle>
+                    <CardTitle
+                      className={`text-lg transition-all duration-500 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                    >
+                      {feature.title}
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <CardDescription className="text-gray-600">{feature.description}</CardDescription>
+                    <CardDescription
+                      className={`transition-all duration-500 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
+                    >
+                      {feature.description}
+                    </CardDescription>
                   </CardContent>
                 </Card>
               ))}
@@ -295,8 +399,18 @@ export default function HomePage() {
         <section className="py-20 px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-16">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">Simple, Transparent Pricing</h2>
-              <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              <h2
+                className={`text-3xl font-bold mb-4 transition-all duration-500 ${
+                  isDarkMode ? "text-white" : "text-gray-900"
+                }`}
+              >
+                Simple, Transparent Pricing
+              </h2>
+              <p
+                className={`text-xl max-w-2xl mx-auto transition-all duration-500 ${
+                  isDarkMode ? "text-gray-300" : "text-gray-600"
+                }`}
+              >
                 Only pay when you earn. No monthly fees, no hidden costs.
               </p>
             </div>
@@ -304,7 +418,15 @@ export default function HomePage() {
               {pricingPlans.map((plan, index) => (
                 <Card
                   key={index}
-                  className={`relative ${plan.popular ? "border-purple-500 shadow-xl scale-105" : "border-gray-200"}`}
+                  className={`relative transition-all duration-500 ${
+                    plan.popular
+                      ? "border-purple-500 shadow-xl scale-105"
+                      : isDarkMode
+                        ? "border-gray-700"
+                        : "border-gray-200"
+                  } ${
+                    isDarkMode ? "bg-gray-800/50 backdrop-blur-sm hover:bg-gray-800/70" : "bg-white"
+                  } ${isDarkMode ? "hover:scale-105 hover:shadow-purple-500/25" : ""}`}
                 >
                   {plan.popular && (
                     <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
@@ -312,16 +434,30 @@ export default function HomePage() {
                     </div>
                   )}
                   <CardHeader className="text-center">
-                    <CardTitle className="text-xl">{plan.name}</CardTitle>
+                    <CardTitle
+                      className={`text-xl transition-all duration-500 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+                    >
+                      {plan.name}
+                    </CardTitle>
                     <div className="text-3xl font-bold text-purple-600 mb-2">{plan.price}</div>
-                    <CardDescription>{plan.description}</CardDescription>
+                    <CardDescription
+                      className={`transition-all duration-500 ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}
+                    >
+                      {plan.description}
+                    </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <ul className="space-y-3">
                       {plan.features.map((feature, featureIndex) => (
                         <li key={featureIndex} className="flex items-center">
                           <Check className="h-4 w-4 text-green-500 mr-3 flex-shrink-0" />
-                          <span className="text-sm text-gray-600">{feature}</span>
+                          <span
+                            className={`text-sm transition-all duration-500 ${
+                              isDarkMode ? "text-gray-300" : "text-gray-600"
+                            }`}
+                          >
+                            {feature}
+                          </span>
                         </li>
                       ))}
                     </ul>
@@ -337,7 +473,11 @@ export default function HomePage() {
       )}
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12 px-4 sm:px-6 lg:px-8">
+      <footer
+        className={`py-12 px-4 sm:px-6 lg:px-8 transition-all duration-500 ${
+          isDarkMode ? "bg-gray-900 text-white" : "bg-gray-900 text-white"
+        }`}
+      >
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="col-span-1 md:col-span-2">

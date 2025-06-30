@@ -503,8 +503,8 @@ export function UserDashboard({ userAddress = "0x1234...5678" }: UserDashboardPr
     <div className="space-y-6 p-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>
-        <p className="text-gray-600">Manage your subscriptions and created plans</p>
+        <h1 className="text-3xl font-bold text-blue-700 mb-2">Dashboard</h1>
+        <p className="text-blue-700">Manage your subscriptions and created plans</p>
       </div>
 
       <Tabs defaultValue="overview" className="space-y-6">
@@ -704,7 +704,7 @@ export function UserDashboard({ userAddress = "0x1234...5678" }: UserDashboardPr
         <TabsContent value="nfts" className="space-y-6">
           <div className="mb-6">
             <h2 className="text-2xl font-bold mb-2">Your NFT Membership Passes</h2>
-            <p className="text-gray-600">
+            <p className="text-gray-300">
               Exclusive digital passes that grant access to premium content and communities
             </p>
           </div>
